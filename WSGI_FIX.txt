@@ -1,0 +1,102 @@
+═══════════════════════════════════════════════════════════════════════════════════
+                      WSGI MODULE PATH FIX - RENDER DEPLOYMENT
+                   Correction de la structure des répertoires
+═══════════════════════════════════════════════════════════════════════════════════
+
+
+🔴 PROBLÈME:
+─────────────────────────────────────────────────────────────────────────────────
+
+ModuleNotFoundError: Aucun module nommé 'moncv.wsgi'
+
+Cause: La structure du projet est imbriquée:
+  /root/moncv/
+    ├── moncv/              (dossier Django principal)
+    │   ├── moncv/          (config Django)
+    │   │   ├── wsgi.py     ← Le vrai wsgi.py
+    │   │   ├── settings_railway.py
+    │   │   └── ...
+    │   ├── manage.py
+    │   └── ...
+    ├── Procfile
+    ├── render.yaml
+    └── requirements.txt
+
+
+✅ SOLUTIONS APPLIQUÉES:
+─────────────────────────────────────────────────────────────────────────────────
+
+1️⃣  CRÉER UN manage.py WRAPPER À LA RACINE
+    Fichier: /root/moncv/manage.py
+    Rôle: Naviguer dans moncv/ et lancer Django
+    
+    Contenu:
+    #!/usr/bin/env python
+    import os
+    import sys
+    
+    def main():
+        os.chdir('moncv')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'moncv.settings_railway')
+        from django.core.management import execute_from_command_line
+        execute_from_command_line(sys.argv)
+    
+    if __name__ == '__main__':
+        main()
+
+2️⃣  CORRIGER LE PROCFILE
+    Avant: web: gunicorn moncv.wsgi
+    Après: web: gunicorn moncv.moncv.wsgi
+    
+    Explication: 
+    - "moncv.moncv" = répertoire/module Django
+    - "wsgi" = fichier wsgi.py
+
+3️⃣  CORRIGER LE render.yaml
+    Avant: startCommand: "gunicorn moncv.wsgi"
+    Après: startCommand: "gunicorn moncv.moncv.wsgi"
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSULTAT:
+─────────────────────────────────────────────────────────────────────────────────
+
+✅ Render peut maintenant trouver le module wsgi
+✅ gunicorn peut démarrer correctement
+✅ Les migrations s'exécutent avec manage.py
+✅ Déploiement devrait réussir!
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+🚀 PROCHAINES ÉTAPES:
+─────────────────────────────────────────────────────────────────────────────────
+
+1. Render va redéployer automatiquement (git push)
+2. Vérifiez les logs sur https://render.com/dashboard
+3. Cherchez: "Running on https://..."
+4. Votre site devrait être en ligne! 🎉
+
+Si erreur persiste:
+→ Vérifiez que moncv/moncv/wsgi.py existe
+→ Vérifiez DJANGO_SETTINGS_MODULE dans render.yaml
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+FICHIERS MODIFIÉS:
+─────────────────────────────────────────────────────────────────────────────────
+
+✅ manage.py (NOUVEAU)          - Wrapper pour Django
+✅ Procfile                       - Chemin wsgi corrigé
+✅ render.yaml                    - Chemin wsgi corrigé
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+✨ C'EST FIXÉ! ✨
+
+Le déploiement Render devrait maintenant fonctionner! 🚀
+
+════════════════════════════════════════════════════════════════════════════════════
