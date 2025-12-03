@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: free
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-    startCommand: "gunicorn moncv.wsgi"
+    startCommand: "gunicorn moncv.moncv.wsgi"
     
     envVars:
       - key: DEBUG
@@ -16,18 +16,12 @@ services:
       
       - key: PYTHON_VERSION
         value: "3.11"
-    
-    disk:
-      name: moncv-disk
-      mountPath: /var/data
-      sizeGB: 1
 
   - type: pserv
     name: moncv-postgres
     env: postgres
     region: frankfurt
     plan: free
-    ipAllowList: []
 
 databases:
   - name: moncv_db
