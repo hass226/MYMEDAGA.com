@@ -1,0 +1,367 @@
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║                          ⚡ RENDER QUICK COMMANDS                                  ║
+║                    Commandes rapides pour Render Shell                             ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
+
+
+🎯 ACCÉDER AU SHELL RENDER:
+════════════════════════════════════════════════════════════════════════════════════
+
+1. Allez sur https://render.com/dashboard
+2. Cliquez sur votre Web Service (moncv)
+3. Cliquez sur "Shell" en haut
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+📋 COMMANDES ESSENTIELLES:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+DÉMARRAGE & CONFIG:
+───────────────────
+
+Vérifier la configuration Django:
+$ python manage.py check
+
+Voir les variables d'environnement:
+$ printenv | grep DJANGO
+
+Vérifier la base de données:
+$ python manage.py dbshell
+
+Quitter dbshell:
+> \q
+
+
+BASE DE DONNÉES:
+────────────────
+
+Afficher les migrations:
+$ python manage.py showmigrations
+
+Créer les migrations:
+$ python manage.py makemigrations
+
+Appliquer les migrations:
+$ python manage.py migrate
+
+Voir l'état de la base:
+$ python manage.py dbshell
+> SELECT COUNT(*) FROM django_migrations;
+
+
+UTILISATEURS & ADMIN:
+─────────────────────
+
+Créer un superuser:
+$ python manage.py createsuperuser
+
+Changer le mot de passe d'un utilisateur:
+$ python manage.py changepassword admin
+
+Lister les utilisateurs:
+$ python manage.py shell
+>>> from django.contrib.auth.models import User
+>>> for u in User.objects.all():
+...     print(f"{u.username} - {u.email}")
+>>> exit()
+
+Créer un utilisateur depuis le shell:
+$ python manage.py shell
+>>> from django.contrib.auth.models import User
+>>> User.objects.create_superuser('admin', 'email@example.com', 'password')
+>>> exit()
+
+
+FICHIERS STATIQUES:
+───────────────────
+
+Collecter les fichiers statiques:
+$ python manage.py collectstatic --noinput
+
+Supprimer les fichiers statiques et recollect:
+$ python manage.py collectstatic --clear --noinput
+
+
+DONNÉES & DUMP:
+───────────────
+
+Exporter les données (backup):
+$ python manage.py dumpdata > backup.json
+
+Importer les données:
+$ python manage.py loaddata backup.json
+
+
+LOGS & MONITORING:
+──────────────────
+
+Voir les logs en temps réel (depuis Render UI):
+→ Allez dans l'onglet "Logs"
+
+Suivre les logs (dans Shell):
+$ tail -f /var/log/gunicorn.log
+
+Voir les erreurs récentes:
+$ python manage.py shell
+>>> from django.views.debug import get_exception_repr_try
+>>> # Ou vérifier simplement les logs
+
+
+SHELL DJANGO INTERACTIF:
+────────────────────────
+
+Ouvrir le shell Django:
+$ python manage.py shell
+
+Exemples de commandes:
+
+>>> from django.contrib.auth.models import User
+>>> User.objects.count()  # Nombre d'utilisateurs
+
+>>> User.objects.all()  # Tous les utilisateurs
+
+>>> u = User.objects.get(username='admin')  # Récupérer un utilisateur
+>>> u.email  # Voir l'email
+
+>>> u.email = 'newemail@example.com'  # Changer l'email
+>>> u.save()  # Sauvegarder
+
+>>> exit()  # Quitter le shell
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+⚙️ PROBLÈMES COURANTS & SOLUTIONS:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+"ModuleNotFoundError" après déploiement
+─────────────────────────────────────────
+
+Dans le Shell Render:
+$ pip list | grep [package-name]
+
+Si le package manque:
+1. Allez dans votre repo local
+2. Installez le package: pip install [package-name]
+3. Mettez à jour requirements.txt: pip freeze > requirements.txt
+4. Committez: git add requirements.txt && git commit -m "Add package"
+5. Poussez: git push origin main
+6. Render redéploiera automatiquement
+
+
+"Database connection refused"
+──────────────────────────────
+
+Dans le Shell Render:
+$ python manage.py dbshell
+
+Si ça fonctionne, la DB est OK.
+
+Si erreur:
+1. Attendez 5 minutes (PostgreSQL initialisation)
+2. Vérifiez DATABASE_URL: echo $DATABASE_URL
+3. Vérifiez que PostgreSQL est en "Available" state sur Render
+
+
+"Static files 404"
+──────────────────
+
+Dans le Shell Render:
+$ python manage.py collectstatic --noinput
+
+Vérifiez WHITENOISE_STORAGE dans settings_railway.py
+
+Redéployer:
+→ Cliquez "Redeploy" sur Render
+
+
+"502 Bad Gateway"
+──────────────────
+
+1. Attendez 1-2 minutes (service redémarre)
+2. Actualiser la page
+3. Vérifier les logs
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+�� INSPECTION & DÉBOGAGE:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Voir les variables d'environnement:
+$ env | sort
+
+Chercher une variable spécifique:
+$ echo $DEBUG
+$ echo $ALLOWED_HOSTS
+$ echo $SECRET_KEY
+
+Vérifier les permissions:
+$ ls -la moncv/
+$ pwd  # Répertoire courant
+
+Voir l'espace disque:
+$ df -h
+
+Voir la mémoire utilisée:
+$ free -h
+
+Voir les processus:
+$ ps aux | grep gunicorn
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+📊 STATISTIQUES & INFO:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Nombre d'utilisateurs:
+$ python manage.py shell
+>>> from django.contrib.auth.models import User
+>>> User.objects.count()
+
+Dernière migration appliquée:
+$ python manage.py showmigrations | grep -A 1 "\[X\]"
+
+Version Python:
+$ python --version
+
+Version Django:
+$ python -c "import django; print(django.VERSION)"
+
+Packages installés:
+$ pip list
+
+Version de Gunicorn:
+$ gunicorn --version
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+🚀 COMMANDES PRATIQUES QUOTIDIENNES:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Après chaque déploiement:
+$ python manage.py migrate
+$ python manage.py check
+
+Avant d'appliquer des migrations en production:
+$ python manage.py migrate --plan  # Voir ce qui va se passer
+$ python manage.py migrate --dry-run  # (si disponible)
+
+Vérifier que tout fonctionne:
+$ python manage.py test  # Si vous avez des tests
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+💾 SAUVEGARDE & RÉCUPÉRATION:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Faire un backup de la DB:
+$ python manage.py dumpdata > backup.json
+
+Télécharger le backup (depuis Shell):
+→ Créer un fichier dans le Shell
+→ Voir comment accéder (Render ne permet pas direct download)
+
+Alternative: Utiliser Render Backup (pagé)
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+📝 ÉDITER DES FICHIERS DANS LE SHELL:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Voir un fichier:
+$ cat moncv/settings_railway.py
+
+Éditer un fichier (nano):
+$ nano moncv/settings_railway.py
+
+Éditer avec vi:
+$ vi moncv/settings_railway.py
+
+Chercher du texte dans un fichier:
+$ grep -r "ALLOWED_HOSTS" moncv/
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+🎯 WORKFLOWQUOTIDIEN:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+DÉVELOPPEMENT LOCAL:
+1. git pull  (mettre à jour)
+2. python manage.py runserver
+3. ... développement ...
+4. git add -A
+5. git commit -m "..."
+6. git push origin main
+
+APRÈS LE PUSH (sur Render):
+1. Attendre le déploiement auto (voir Logs)
+2. Quand c'est fait, tester le site
+3. Si erreur: vérifier les logs
+4. Si migrations: taper dans le Shell: python manage.py migrate
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+📚 RESSOURCES ADDITIONNELLES:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+Django Shell Documentation:
+https://docs.djangoproject.com/en/stable/ref/django-admin/#shell
+
+Python Interactive Interpreter:
+>>> help(objet)  # Aide sur un objet
+>>> dir(objet)   # Méthodes disponibles
+
+Render Documentation:
+https://render.com/docs
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+⚠️ ATTENTION - NE PAS FAIRE:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+❌ Ne pas modifier DATABASE_URL directement
+❌ Ne pas supprimer les fichiers de migration
+❌ Ne pas éditer les variables d'env depuis le Shell (utiliser Render UI)
+❌ Ne pas faire de git push depuis le Shell Render
+❌ Ne pas modifier SECRET_KEY après déploiement (cassera les sessions)
+❌ Ne pas laisser le Shell ouvert indéfiniment (fermer après utilisation)
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+✅ BONNES PRATIQUES:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+✓ Toujours faire python manage.py check avant de déployer
+✓ Toujours faire migrate après déploiement
+✓ Toujours sauvegarder avant les changements importants
+✓ Toujours vérifier les logs en cas d'erreur
+✓ Toujours utiliser un superuser créé via Django, pas par SQL
+✓ Toujours tester localement avant de pousser
+✓ Toujours garder requirements.txt à jour
+
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+BONNE CHANCE DANS VOS COMMANDES! 🚀
+
