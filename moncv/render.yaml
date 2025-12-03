@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: moncv-web
+    env: python
+    # branch: main
+    buildCommand: |
+      python -m pip install --upgrade pip
+      pip install -r moncv/moncv/requirements.txt -r moncv/backend/requirements.txt
+    startCommand: |
+      cd moncv
+      gunicorn moncv.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+    releaseCommand: |
+      cd moncv
+      python manage.py migrate --noinput
+      python manage.py collectstatic --noinput
+    envVars:
+      - key: SECRET_KEY
+        value: null
+      - key: DATABASE_URL
+        value: null
+      - key: ALLOWED_HOSTS
+        value: null
+      - key: SITE_URL
+        value: null
+      - key: REDIS_URL
+        value: null
+      - key: AWS_ACCESS_KEY_ID
+        value: null
+      - key: AWS_SECRET_ACCESS_KEY
+        value: null
+      - key: AWS_STORAGE_BUCKET_NAME
+        value: null
+      - key: AWS_S3_REGION_NAME
+        value: null
+      - key: AWS_S3_ENDPOINT_URL
+        value: null
+      - key: USE_S3_STATIC
+        value: 'False'
+    # Health check path (Render will poll this path to verify service health)
+    healthCheckPath: /
