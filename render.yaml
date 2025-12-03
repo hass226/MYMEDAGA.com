@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: moncv-web
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn moncv.wsgi"
+    
+    envVars:
+      - key: DEBUG
+        value: "False"
+      
+      - key: DJANGO_SETTINGS_MODULE
+        value: "moncv.settings_railway"
+      
+      - key: PYTHON_VERSION
+        value: "3.11"
+    
+    disk:
+      name: moncv-disk
+      mountPath: /var/data
+      sizeGB: 1
+
+  - type: pserv
+    name: moncv-postgres
+    env: postgres
+    region: frankfurt
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: moncv_db
+    databaseName: moncv_db
+    user: moncv_user
+    region: frankfurt
+    plan: free
