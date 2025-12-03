@@ -1,10 +1,11 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "heroku.buildpacks"
+    "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
   },
   "deploy": {
-    "numReplicas": 1,
-    "startCommand": "python manage.py migrate && gunicorn moncv.wsgi"
+    "startCommand": "gunicorn moncv.wsgi --log-file -",
+    "restartPolicyMaxRetries": 10,
+    "restartPolicyCondition": "on-failure"
   }
 }
