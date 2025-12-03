@@ -7,8 +7,8 @@ services:
       python -m pip install --upgrade pip
       pip install -r moncv/moncv/requirements.txt -r moncv/backend/requirements.txt
     startCommand: |
-      cd moncv
-      gunicorn moncv.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+      # Start Gunicorn from the repository root and set the working directory
+      gunicorn --chdir moncv moncv.wsgi:application --bind 0.0.0.0:$PORT --workers 3
     releaseCommand: |
       cd moncv
       python manage.py migrate --noinput
