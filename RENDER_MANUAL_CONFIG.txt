@@ -1,0 +1,151 @@
+═══════════════════════════════════════════════════════════════════════════════════
+                    RENDER MANUAL CONFIGURATION GUIDE
+              Configuration manuelle sur l'interface Render
+═══════════════════════════════════════════════════════════════════════════════════
+
+
+📌 IMPORTANT: render.yaml n'est PAS utilisé par Render
+─────────────────────────────────────────────────────────────────────────────────
+
+Vous devez configurer MANUELLEMENT sur l'interface web de Render!
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+🚀 ÉTAPES DE CONFIGURATION MANUELLE:
+════════════════════════════════════════════════════════════════════════════════════
+
+
+ÉTAPE 1: ALLER SUR RENDER DASHBOARD
+─────────────────────────────────────
+→ https://render.com/dashboard
+→ Cliquez sur votre Web Service (moncv)
+
+
+ÉTAPE 2: CONFIGURER LE BUILD COMMAND
+─────────────────────────────────────
+Settings → Build Command
+
+Remplacez par:
+  pip install -r requirements.txt && python manage.py collectstatic --noinput
+
+
+ÉTAPE 3: CONFIGURER LE START COMMAND
+─────────────────────────────────────
+Settings → Start Command
+
+Remplacez par:
+  gunicorn moncv.moncv.wsgi
+
+
+ÉTAPE 4: VÉRIFIER LES VARIABLES D'ENVIRONNEMENT
+────────────────────────────────────────────────
+Environment → Ajouter/Vérifier:
+
+  DEBUG                      = False
+  DJANGO_SETTINGS_MODULE     = moncv.settings_railway
+  PYTHON_VERSION             = 3.11
+  SECRET_KEY                 = (votre clé)
+  ALLOWED_HOSTS              = votre-url.onrender.com
+  SITE_URL                   = https://votre-url.onrender.com
+  PAYMENT_ENVIRONMENT        = sandbox
+
+
+ÉTAPE 5: AJOUTER/CONFIGURER POSTGRESQL
+───────────────────────────────────────
+Data → New PostgreSQL
+
+  Name:       moncv_db
+  Plan:       Free
+  Region:     Frankfurt
+  
+Render génère DATABASE_URL automatiquement ✅
+
+
+ÉTAPE 6: REDÉPLOYER
+───────────────────
+Sur la page du Web Service:
+
+  Cliquez "Redeploy" (bouton bleu en haut)
+  
+  Les logs vont afficher:
+  - Build en cours...
+  - "Successfully built image"
+  - "Running on https://..."
+  
+  Attendez 5-10 minutes
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+✅ VÉRIFICATION DU SUCCÈS:
+─────────────────────────────────────────────────────────────────────────────────
+
+Cherchez dans les logs:
+
+❌ ModuleNotFoundError: moncv.wsgi
+   → Vérifier que Start Command = gunicorn moncv.moncv.wsgi
+
+✅ "Running on https://votre-url.onrender.com"
+   → Succès! Site en ligne!
+
+✅ "Application started successfully"
+   → Site opérationnel!
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+🔧 SI ERREUR PERSISTE:
+─────────────────────────────────────────────────────────────────────────────────
+
+1. Vérifier que Start Command contient "moncv.moncv.wsgi" (double moncv!)
+
+2. Vérifier que Build Command inclut collectstatic
+
+3. Vérifier DATABASE_URL existe (créer PostgreSQL si absent)
+
+4. Vérifier DJANGO_SETTINGS_MODULE = moncv.settings_railway
+
+5. Cliquer "Redeploy" plusieurs fois si nécessaire
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+📝 FICHIERS LOCAUX PRÊTS:
+─────────────────────────────────────────────────────────────────────────────────
+
+✅ Procfile
+   release: python manage.py migrate
+   web: gunicorn moncv.moncv.wsgi
+
+✅ manage.py (wrapper)
+   ⬆️ Permet à Render d'exécuter Django
+
+✅ requirements.txt
+   ⬆️ Toutes les dépendances
+
+✅ moncv/settings_railway.py
+   ⬆️ Configuration Django production
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+🎯 RÉSUMÉ:
+─────────────────────────────────────────────────────────────────────────────────
+
+1. Allez sur Render UI: https://render.com/dashboard
+2. Settings → Build Command = pip install -r requirements.txt && python manage.py collectstatic --noinput
+3. Settings → Start Command = gunicorn moncv.moncv.wsgi
+4. Environment → Ajouter variables (voir ÉTAPE 4)
+5. Cliquez "Redeploy"
+6. Attendre les logs: "Running on https://..."
+7. Voilà! Site en ligne! 🎉
+
+
+════════════════════════════════════════════════════════════════════════════════════
+
+✨ C'EST FACILE! ✨
+
+Juste quelques clics sur Render et c'est bon! 🚀
+
+════════════════════════════════════════════════════════════════════════════════════
