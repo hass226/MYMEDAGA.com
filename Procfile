@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn moncv.wsgi:application
+web: python run_gunicorn.py
