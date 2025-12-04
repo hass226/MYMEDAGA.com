@@ -11,8 +11,17 @@ from datetime import datetime
 from django.conf import settings
 from django.utils import timezone
 import logging
-import paydunya
-from paydunya import Store, Invoice
+
+try:
+    import paydunya
+    from paydunya import Store, Invoice
+    PAYDUNYA_AVAILABLE = True
+except ImportError:
+    PAYDUNYA_AVAILABLE = False
+    paydunya = None
+    Store = None
+    Invoice = None
+
 from .paydunya_service import configure_paydunya
 
 logger = logging.getLogger(__name__)
@@ -425,6 +434,12 @@ class PayDunyaProvider(PaymentProvider):
 
     def initiate_payment(self, amount, phone_number, transaction_id, description=""):
         """Initie un paiement PayDunya en créant une CheckoutInvoice"""
+        if not PAYDUNYA_AVAILABLE:
+            return {
+                'success': False,
+                'error': 'PayDunya library not installed. Please install it later.',
+            }
+        
         try:
             configure_paydunya()
             # Créer le store PayDunya (nom minimal)

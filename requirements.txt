@@ -33,7 +33,7 @@ urllib3==1.26.18
 # APIs & Integrations
 stripe==13.2.0
 openai==2.8.0
-paydunya==1.0.7
+# paydunya==1.0.7  # COMMENTED: Has build issues on Render, reinstall later if needed
 
 # Real-time (Channels & Redis)
 channels==4.3.1

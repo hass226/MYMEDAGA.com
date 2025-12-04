@@ -1,5 +1,11 @@
 import os
-import paydunya
+try:
+    import paydunya
+    PAYDUNYA_AVAILABLE = True
+except ImportError:
+    PAYDUNYA_AVAILABLE = False
+    paydunya = None
+
 from django.conf import settings
 
 
@@ -9,6 +15,10 @@ def configure_paydunya():
     La SDK attend un dictionnaire PAYDUNYA_ACCESS_TOKENS et un booléen paydunya.debug,
     pas un appel de fonction api_keys (qui provoquait "'dict' object is not callable").
     """
+    
+    if not PAYDUNYA_AVAILABLE:
+        print("⚠️  Warning: paydunya is not installed. Payment integration disabled.")
+        return
 
     master_key = os.getenv("PAYDUNYA_MASTER_KEY", getattr(settings, "PAYDUNYA_MASTER_KEY", ""))
     private_key = os.getenv("PAYDUNYA_PRIVATE_KEY", getattr(settings, "PAYDUNYA_PRIVATE_KEY", ""))
