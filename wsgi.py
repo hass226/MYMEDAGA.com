@@ -1,26 +1,26 @@
 """
 WSGI config wrapper for Render deployment.
-This wrapper navigates to the moncv/ directory before loading Django.
+Handles the nested Django structure by adjusting the Python path.
 """
 
 import os
 import sys
 import django
 
-# Add the moncv directory to the Python path
-moncv_dir = os.path.join(os.path.dirname(__file__), 'moncv')
-sys.path.insert(0, moncv_dir)
+# Get the paths
+project_root = os.path.dirname(__file__)
+django_project_dir = os.path.join(project_root, 'moncv')
 
-# Change to moncv directory so Django can find apps and settings
-os.chdir(moncv_dir)
+# Add the django project directory to sys.path so imports work correctly
+sys.path.insert(0, django_project_dir)
 
-# Set Django settings module
+# Set up Django settings module (this refers to moncv/moncv/settings_railway.py)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'moncv.settings_railway')
 
 # Setup Django
 django.setup()
 
-# Now import and return the actual WSGI application
+# Import the WSGI application from the nested moncv/moncv/wsgi.py
 from moncv.wsgi import application
 
 __all__ = ['application']
