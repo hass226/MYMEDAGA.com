@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn moncv.moncv.wsgi
+    startCommand: gunicorn wsgi:application
     envVars:
       - key: DEBUG
         value: "False"
