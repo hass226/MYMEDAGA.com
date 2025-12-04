@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: moncv
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn moncv.moncv.wsgi
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SETTINGS_MODULE
+        value: moncv.settings_railway
+      - key: PYTHON_VERSION
+        value: "3.13"
+
+databases:
+  - name: moncv_db
+    plan: free
+    region: frankfurt
